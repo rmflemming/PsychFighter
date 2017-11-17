@@ -44,7 +44,7 @@ function love.load()
   
   init_attack = init_attack[math.random(1,1000)] -- hard-coded to assume that 1000 init_attack times are provided
   p2.strike_times = init_attack
-  p2.block_times = preparation_cost[1]
+  p2.reaction_time = preparation_cost[1]
   game.fighter1 = p1
   game.fighter2 = p2
   
@@ -62,11 +62,11 @@ function love.keypressed(key)
     if key == "right" then
       p1:strikePressed(dt)
       p1.strikeTime = game.trialTime
-      p2.block_times = preparation_cost[math.ceil(1000*game.trialTime/game.trialTimeout)] -- calculate ai prep cost from player attk time 
+      p2.reaction_time = preparation_cost[math.ceil(1000*game.trialTime/p2.strike_times)] -- calculate ai prep cost from player attk time 
     elseif key == "left" then
       p1:blockPressed(dt)
       p1.blockTime = game.trialTime
-      p2.block_times = preparation_cost[math.ceil(1000*game.trialTime/game.trialTimeout)]-- calculate ai prep cost from player attk time , more of a reaction time for the ai than a block time
+      p2.reaction_time = preparation_cost[math.ceil(1000*game.trialTime/p2.strike_times)]-- calculate ai prep cost from player attk time , more of a reaction time for the ai than a block time
     end
   end
   

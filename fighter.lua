@@ -58,7 +58,7 @@ function Fighter:initTimings()
   if self.control == "ai" then
     -- Will want to draw from distributions (sciLua?) eventually
     self.strike_times = 1
-    self.block_times = .5
+    self.reaction_time = .5
   end
 end
 ]]--

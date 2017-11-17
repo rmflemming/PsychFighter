@@ -60,11 +60,11 @@ function GameLogic:ai_state(dt)
         -- draw from defense/attack distributions and set p2 state to the appropriate one
         -- if block RT before planned attack & it is block RT time 
 
-          if p2.block_times + t < p2.strike_times and t >= p2.block_times + p1.strikeTime then
+          if p2.reaction_time + t < p2.strike_times and t >= p2.reaction_time + p1.strikeTime then
             p2:blockPressed(dt)
             p2.blockTime = t
             -- elseif block Rt later than plan attack & is attack time, then attack
-          elseif p2.block_times + t >= p2.strike_times and t == p2.strike_times then
+          elseif p2.reaction_time + t >= p2.strike_times and t == p2.strike_times then
             p2:strikePressed(dt)
             p2.strikeTime = t
           end
@@ -73,7 +73,7 @@ function GameLogic:ai_state(dt)
 
       -- AI Reacts to Player Defense
       -- if p1 in block and p2 idle and attack time sooner than block RT then
-      if p1.state == "block" and p2.state == "idle" and p2.strike_times - t < tonumber(p2.block_times) then
+      if p1.state == "block" and p2.state == "idle" and p2.strike_times - t < tonumber(p2.reaction_time) then
         p2:strikePressed(dt)
         p2.strikeTime = t
       end
