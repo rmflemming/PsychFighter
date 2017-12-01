@@ -5,6 +5,7 @@ function love.load()
   
   game = GameLogic:new()
   
+  -- Init Players
   p1 = Fighter:new()
   p1:initGraphics()
   p1.locked = 0
@@ -15,7 +16,7 @@ function love.load()
   p2:initGraphics()
   p2.locked = 0
 
--- Load external files (ai distributions)
+-- Load external files (ai timings)
   local a_file = io.open("assets/init_attack.txt", "r");
   local init_attack = {}
   for line in a_file:lines() do
@@ -34,14 +35,18 @@ function love.load()
     table.insert(strat_dist, line);
   end
   
-  seed = math.randomseed(42)
+  -- Random Seed 
+  seed = math.randomseed(42) -- Currently controlled for testing
   
+  
+  -- Function for counting length of a table, may be useful for setting the initial attack randomly with different length files
   function tablelength(T) -- get the length of a table
     local count = 0
     for _ in pairs(T) do count = count + 1 end
     return count
   end
   
+  -- initialize ai times
   init_attack = init_attack[math.random(1,1000)] -- hard-coded to assume that 1000 init_attack times are provided
   p2.strike_times = init_attack
   p2.reaction_time = preparation_cost[1]

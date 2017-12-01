@@ -142,11 +142,12 @@ function GameLogic:nextTrial()
   
   p1.locked = 0
   p2.locked = 0
+  p2.reaction_time = preparation_cost[1]
+  print(p2.strike_times)
   end
 end
 
 function GameLogic:draw()
-  
   local state = self.state
   love.graphics.print("game.state = " .. self.state, 400, 200 )
   love.graphics.print("game.trialNumber = " .. self.trialNumber, 400, 220 )
