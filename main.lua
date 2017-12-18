@@ -2,8 +2,12 @@ function love.load()
   require "gamelogic"
   require "fighter"
   require "io"
+  require "textbox"
   
   game = GameLogic:new()
+  
+  -- Init User Input
+  inbox = textbox:new()
   
   -- Init Players
   p1 = Fighter:new()
@@ -15,10 +19,11 @@ function love.load()
   p2.facing = "left"
   p2:initGraphics()
   p2.locked = 0
+  
 
 -- Load external files (ai timings)
   local a_file = io.open("assets/init_attack.txt", "r");
-  local init_attack = {}
+  init_attack = {}
   for line in a_file:lines() do
     table.insert(init_attack, line);
   end
@@ -35,9 +40,8 @@ function love.load()
     table.insert(strat_dist, line);
   end
   
-  -- Random Seed 
-  seed = math.randomseed(42) -- Currently controlled for testing
-  
+  --designate output file
+  io.output("log.txt")
   
   -- Function for counting length of a table, may be useful for setting the initial attack randomly with different length files
   function tablelength(T) -- get the length of a table
@@ -47,8 +51,6 @@ function love.load()
   end
   
   -- initialize ai times
-  init_attack = init_attack[math.random(1,1000)] -- hard-coded to assume that 1000 init_attack times are provided
-  p2.strike_times = init_attack
   p2.reaction_time = preparation_cost[1]
   game.fighter1 = p1
   game.fighter2 = p2
@@ -58,8 +60,13 @@ end
 function love.keypressed(key) 
   -- Process key presses during a trial
   if game.state == "intro" then
-    
-    if key == "space" then
+    if key == "return" then
+      inbox.answer = true
+      -- Random Seed for AI attack inits
+      seed = math.randomseed(inbox.text) -- Currently controlled for testing
+      p2.strike_times  = init_attack[math.random(1,1000)] -- hard-coded to assume that 1000 init_attack times are provided
+    end
+    if inbox.answer and key == "space" then
       game:nextTrial()
     end
     

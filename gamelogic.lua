@@ -5,6 +5,7 @@ GameLogic = {
    trialTimeout=5.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 20, fighter1=nil, fighter2=nil,
    }
 
+
 function GameLogic:new(o)
   o = o or {}
   self.__index = self
@@ -14,7 +15,8 @@ end
 
 function GameLogic:update(dt)
   local t = self.trialTime
-  t = t + dt 
+  t = t + dt
+  
   if self.state == "trial" then
     -- Is there a timeout?
     if t > self.trialTimeout then
@@ -90,8 +92,10 @@ function GameLogic:fighterUpdate()
   if p1.state == "strike" and p1.strike_active_frames[p1.currentFrame] then
     if p2.state == "block" and p2.block_active_frames[p2.currentFrame] then
       p1.state = "death"
+      out = {p1.strike_times, none, none, p2.block_times}
     end
     if p2.state == "strike" and p2.strike_active_frames[p2.currentFrame] then
+      out = {p1.strike_times, none, p2.strike_times, none}
       if p2.strikeTime < p1.strikeTime then
         p1.state = "death"
       elseif p1.strikeTime < p2.strikeTime then
@@ -107,9 +111,16 @@ function GameLogic:fighterUpdate()
       
     elseif not p2.block_active_frames[p2.currentFrame] and p1.strike_active_frames[p1.currentFrame] then --- this may be problematic***************-----------
       p2.state = "death"
+      out = {p1.strike_times, none, none, none}
     end
     
   elseif p2.state == "strike" and p2.strike_active_frames[p2.currentFrame] then
+    if p1.state == "block" then
+      out = {none, p1.block_times, p2.strike_times, none}
+    elseif p1.state == "strike" then
+      out = {p1.strike_times, none, p2.strike_times, none}
+    end
+    
     if p1.state == "block" and p1.block_active_frames[p1.currentFrame] then
       p2.state = "death"
     end
@@ -117,6 +128,7 @@ function GameLogic:fighterUpdate()
       -- whoever striked last loses
     elseif not p1.block_active_frames[p1.currentFrame] and p2.strike_active_frames[p2.currentFrame] then----- ************************-------------------
       p1.state = "death"
+      out = {none, none, p2.strike_times, none}
     end
     
   end
@@ -125,6 +137,15 @@ function GameLogic:fighterUpdate()
 end
 
 function GameLogic:nextTrial()
+  if self.trialNumber >= 1 then
+    if self.trialNumber == 1 then
+      io.write("none none none none\n")
+    end
+    
+    io.write(table.tostring({table.tostring(out),"\n"}))
+  end
+  
+
   if self.trialNumber < self.maxTrials then
   -- Initiates the next trial
   self.trialNumber = self.trialNumber + 1
@@ -154,6 +175,12 @@ function GameLogic:draw()
   love.graphics.print("game.trialTime= " .. self.trialTime, 400, 240 )
   if state == "intro" then
     love.graphics.print("Press space to start", 400, 260 )
+  if not inbox.answer then do
+      inbox:input(text)
+      inbox:activity(x,y)
+      inbox:draw()
+    end
+  end
     
   elseif state == "trial" then
     
