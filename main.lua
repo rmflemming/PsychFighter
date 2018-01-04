@@ -3,6 +3,7 @@ function love.load()
   require "fighter"
   require "io"
   require "textbox"
+  require "output"
   
   game = GameLogic:new()
   
@@ -44,12 +45,8 @@ function love.load()
   io.output("log.txt")
   
   -- create output tables
-  player1_strike = {}
-  player1_block = {}
-  player2_strike = {}
-  player2_block = {}
-  player1_win = {}
-  
+  out = Output:new()
+
   -- Function for counting length of a table, may be useful for setting the initial attack randomly with different length files
   function tablelength(T) -- get the length of a table
     local count = 0
@@ -81,14 +78,14 @@ function love.keypressed(key)
     if key == "right" then
       p1:strikePressed(dt)
       p1.strikeTime = game.trialTime
-      player1_strike[game.trialNumber] = p1.strikeTime
-      player1_block[game.trialNumber] = none
+      out.player1_strike[game.trialNumber] = p1.strikeTime
+      out.player1_block[game.trialNumber] = 9999
       p2.reaction_time = preparation_cost[math.ceil(1000*game.trialTime/p2.strike_times)] -- calculate ai prep cost from player attk time 
     elseif key == "left" then
       p1:blockPressed(dt)
       p1.blockTime = game.trialTime
-      player1_strike[game.trialNumber] = none
-      player1_block[game.trialNumber] = p1.blockTime
+      out.player1_strike[game.trialNumber] = 9999
+      out.player1_block[game.trialNumber] = p1.blockTime
       p2.reaction_time = preparation_cost[math.ceil(1000*game.trialTime/p2.strike_times)]-- calculate ai prep cost from player attk time , more of a reaction time for the ai than a block time
     end
   end
