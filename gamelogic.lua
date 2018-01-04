@@ -2,7 +2,7 @@ require "math"
 
 GameLogic = {
    p2_type="ai", state="intro", trialTime=0.0, globalTime=0.0, 
-   trialTimeout=5.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 20, fighter1=nil, fighter2=nil,
+   trialTimeout=5.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 1, fighter1=nil, fighter2=nil,
    }
 
 
@@ -31,7 +31,6 @@ function GameLogic:update(dt)
     end
     
   elseif self.state == "timeout" then
-
       
     if t > self.timeoutDuration then
       self:nextTrial()
@@ -55,6 +54,8 @@ function GameLogic:ai_state(dt)
       and self.trialTime >= p2.strike_times then
         p2:strikePressed(dt) 
         p2.strikeTime = t
+        player2_strike[self.trialNumber] = p2.strikeTime
+        player2_block[self.trialNumber] = none
       end
       
       -- AI Reacts to Player Attack
@@ -65,10 +66,14 @@ function GameLogic:ai_state(dt)
           if p2.reaction_time + t < p2.strike_times and t >= p2.reaction_time + p1.strikeTime then
             p2:blockPressed(dt)
             p2.blockTime = t
+            player2_block[self.trialNumber] = p2.blockTime
+            player2_strike[self.trialNumber] = none
             -- elseif block Rt later than plan attack & is attack time, then attack
           elseif p2.reaction_time + t >= p2.strike_times and t == p2.strike_times then
             p2:strikePressed(dt)
             p2.strikeTime = t
+            player2_strike[self.trialNumber] = p2.strikeTime
+            player2_block[self.trialNumber] = none
           end
         
       end
@@ -78,6 +83,8 @@ function GameLogic:ai_state(dt)
       if p1.state == "block" and p2.state == "idle" and p2.strike_times - t < tonumber(p2.reaction_time) then
         p2:strikePressed(dt)
         p2.strikeTime = t
+        player2_strike[self.trialNumber] = p2.strikeTime
+        player2_block[self.trialNumber] = none
       end
       
     end
@@ -92,43 +99,41 @@ function GameLogic:fighterUpdate()
   if p1.state == "strike" and p1.strike_active_frames[p1.currentFrame] then
     if p2.state == "block" and p2.block_active_frames[p2.currentFrame] then
       p1.state = "death"
-      out = {p1.strike_times, none, none, p2.block_times}
+      player1_win[self.trialNumber] = 0
     end
     if p2.state == "strike" and p2.strike_active_frames[p2.currentFrame] then
-      out = {p1.strike_times, none, p2.strike_times, none}
       if p2.strikeTime < p1.strikeTime then
         p1.state = "death"
+        player1_win[self.trialNumber] = 0
       elseif p1.strikeTime < p2.strikeTime then
         p2.state = "death"
+        player1_win[self.trialNumber] = 1
       elseif p1.strikeTime == p2.strikeTime then
         if math.random() > .5 then
           p1.state = "death"
+          player1_win[self.trialNumber] = 0
         else
           p2.state = "death"
+          player1_win[self.trialNumber] = 1
         end
         
       end
       
     elseif not p2.block_active_frames[p2.currentFrame] and p1.strike_active_frames[p1.currentFrame] then --- this may be problematic***************-----------
       p2.state = "death"
-      out = {p1.strike_times, none, none, none}
+      player1_win[self.trialNumber] = 1
     end
     
   elseif p2.state == "strike" and p2.strike_active_frames[p2.currentFrame] then
-    if p1.state == "block" then
-      out = {none, p1.block_times, p2.strike_times, none}
-    elseif p1.state == "strike" then
-      out = {p1.strike_times, none, p2.strike_times, none}
-    end
-    
     if p1.state == "block" and p1.block_active_frames[p1.currentFrame] then
       p2.state = "death"
+      player1_win[self.trialNumber] = 1
     end
     if p1.state == "strike" and p1.strike_active_frames[p1.currentFrame] then
       -- whoever striked last loses
     elseif not p1.block_active_frames[p1.currentFrame] and p2.strike_active_frames[p2.currentFrame] then----- ************************-------------------
       p1.state = "death"
-      out = {none, none, p2.strike_times, none}
+      player1_win[self.trialNumber] = 0
     end
     
   end
@@ -137,34 +142,34 @@ function GameLogic:fighterUpdate()
 end
 
 function GameLogic:nextTrial()
-  if self.trialNumber >= 1 then
-    if self.trialNumber == 1 then
-      io.write("none none none none\n")
-    end
-    
-    io.write(table.tostring({table.tostring(out),"\n"}))
-  end
-  
-
   if self.trialNumber < self.maxTrials then
-  -- Initiates the next trial
-  self.trialNumber = self.trialNumber + 1
-  self.trialTime = 0.0
-  self.state = "trial"
+    -- Initiates the next trial
+    self.trialNumber = self.trialNumber + 1
+    self.trialTime = 0.0
+    self.state = "trial"
   
-  -- update ai strike time
-  nstrat = math.random(1,1000) -- hardcoded to assume 1000 strat values are provided
-  if p2.strike_times + strat_dist[nstrat] > self.trialTimeout or p2.strike_times + strat_dist[nstrat] < 0 then 
-    p2.strike_times = p2.strike_times - strat_dist[nstrat]
-  else
-    p2.strike_times = p2.strike_times + strat_dist[nstrat] -- adapt strike time w/ a draw from the strategy distribution
-  end
+    -- update ai strike time
+    nstrat = math.random(1,1000) -- hardcoded to assume 1000 strat values are provided
+    if p2.strike_times + strat_dist[nstrat] > self.trialTimeout or p2.strike_times + strat_dist[nstrat] < 0 then 
+      p2.strike_times = p2.strike_times - strat_dist[nstrat]
+    else
+      p2.strike_times = p2.strike_times + strat_dist[nstrat] -- adapt strike time w/ a draw from the strategy distribution
+    end
   
   
-  p1.locked = 0
-  p2.locked = 0
-  p2.reaction_time = preparation_cost[1]
-  print(p2.strike_times)
+    p1.locked = 0
+    p2.locked = 0
+    p2.reaction_time = preparation_cost[1]
+    read = 0
+  elseif self.trialNumber == self.maxTrials then
+    if read == 0 then
+      print('p1 strike:',player1_strike[1])
+      print('p1 block:', player1_block[1])
+      print('p2 strike:', player2_strike[1])
+      print('p2 block:', player2_block[1])
+      print('p1 win:', player1_win[1])
+      read = 1
+    end
   end
 end
 
