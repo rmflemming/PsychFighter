@@ -2,8 +2,12 @@ function love.load()
   require "gamelogic"
   require "fighter"
   require "io"
+  require "textbox"
   
   game = GameLogic:new()
+  
+  -- Init User Input
+  inbox = textbox:new()
   
   -- Init Players
   p1 = Fighter:new()
@@ -15,10 +19,11 @@ function love.load()
   p2.facing = "left"
   p2:initGraphics()
   p2.locked = 0
+  
 
 -- Load external files (ai timings)
   local a_file = io.open("assets/init_attack.txt", "r");
-  local init_attack = {}
+  init_attack = {}
   for line in a_file:lines() do
     table.insert(init_attack, line);
   end
@@ -35,10 +40,16 @@ function love.load()
     table.insert(strat_dist, line);
   end
   
-  -- Random Seed 
-  seed = math.randomseed(42) -- Currently controlled for testing
+  --designate output file
+  io.output("log.txt")
   
-  
+  -- create output tables
+  player1_strike = {}
+  player1_block = {}
+  player2_strike = {}
+  player2_block = {}
+  player1_win = {}
+
   -- Function for counting length of a table, may be useful for setting the initial attack randomly with different length files
   function tablelength(T) -- get the length of a table
     local count = 0
@@ -46,9 +57,9 @@ function love.load()
     return count
   end
   
+  preparation_cost.__len = tablelength(preparation_cost)
+  
   -- initialize ai times
-  init_attack = init_attack[math.random(1,1000)] -- hard-coded to assume that 1000 init_attack times are provided
-  p2.strike_times = init_attack
   p2.reaction_time = preparation_cost[1]
   game.fighter1 = p1
   game.fighter2 = p2
@@ -58,8 +69,13 @@ end
 function love.keypressed(key) 
   -- Process key presses during a trial
   if game.state == "intro" then
-    
-    if key == "space" then
+    if key == "return" then
+      inbox.answer = true
+      -- Random Seed for AI attack inits
+      seed = math.randomseed(inbox.text) -- Currently controlled for testing
+      p2.strike_times  = init_attack[math.random(1,1000)] -- hard-coded to assume that 1000 init_attack times are provided
+    end
+    if inbox.answer and key == "space" then
       game:nextTrial()
     end
     
@@ -67,11 +83,14 @@ function love.keypressed(key)
     if key == "right" then
       p1:strikePressed(dt)
       p1.strikeTime = game.trialTime
-      p2.reaction_time = preparation_cost[math.ceil(1000*game.trialTime/p2.strike_times)] -- calculate ai prep cost from player attk time 
+      player1_strike[game.trialNumber] = p1.strikeTime
+      player1_block[game.trialNumber] = 9999
+      
     elseif key == "left" then
       p1:blockPressed(dt)
       p1.blockTime = game.trialTime
-      p2.reaction_time = preparation_cost[math.ceil(1000*game.trialTime/p2.strike_times)]-- calculate ai prep cost from player attk time , more of a reaction time for the ai than a block time
+      player1_strike[game.trialNumber] = 9999
+      player1_block[game.trialNumber] = p1.blockTime
     end
   end
   
