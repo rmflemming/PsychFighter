@@ -2,7 +2,7 @@ require "math"
 
 GameLogic = {
    p2_type="ai", state="input", trialTime=0.0, globalTime=0.0, 
-   trialTimeout=5.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 5, fighter1=nil, fighter2=nil,
+   trialTimeout=3.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 100, fighter1=nil, fighter2=nil,
    }
 
 
@@ -20,12 +20,16 @@ function GameLogic:update(dt)
   if self.state == "trial" then
     -- Is there a timeout?
     if t > self.trialTimeout then
+      if not p1.state == dead and not p2.state == dead then
+        player1_win[self.trialNumber] = 0
+      end
       self.state = "timeout"
       self.trialTime = 0.0
       p1.state = "idle"
       p2.state = "idle"
       p1.currentFrame = 1
       p2.currentFrame = 1
+      
     else
       self.trialTime = t
     end
@@ -156,7 +160,12 @@ function GameLogic:nextTrial()
     self.trialNumber = self.trialNumber + 1
     self.trialTime = 0.0
     self.state = "trial"
-  
+    player1_strike[self.trialNumber] = 9999
+    player1_block[self.trialNumber] = 9999
+    player2_strike[self.trialNumber] = 9999
+    player2_block[self.trialNumber] = 9999
+    player1_win[self.trialNumber] = 9999
+    
     -- update ai strike time
     nstrat = math.random(1,1000) -- hardcoded to assume 1000 strat values are provided
     if p2.strike_times + strat_dist[nstrat] > self.trialTimeout or p2.strike_times + strat_dist[nstrat] < 0 then 
