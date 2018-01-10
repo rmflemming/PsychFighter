@@ -1,7 +1,7 @@
 require "math"
 
 GameLogic = {
-   p2_type="ai", state="intro", trialTime=0.0, globalTime=0.0, 
+   p2_type="ai", state="input", trialTime=0.0, globalTime=0.0, 
    trialTimeout=5.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 5, fighter1=nil, fighter2=nil,
    }
 
@@ -216,22 +216,31 @@ end
 
 function GameLogic:draw()
   local state = self.state
-  love.graphics.print("game.state = " .. self.state, 400, 200 )
-  love.graphics.print("game.trialNumber = " .. self.trialNumber, 400, 220 )
-  love.graphics.print("game.trialTime= " .. self.trialTime, 400, 240 )
-  if state == "intro" then
-    love.graphics.print("Press space to start", 400, 260 )
-  if not inbox.answer then do
-      inbox:input(text)
-      inbox:activity(x,y)
-      inbox:draw()
+  if state == "input" then
+    if not inbox.answer then do
+        inbox:input(text)
+        inbox:activity(x,y)
+        inbox:draw()
+        love.graphics.print ("Click in the box, enter an integer seed, and hit enter to move on!", 300, 250)
+      end
     end
-  end
+    
+      
+    if inbox.answer then
+      self.state = "intro"
+    end
+    
+  elseif state == "intro" then
+    love.graphics.print("Press space to start", 440, 260 )
     
   elseif state == "trial" then
-    
+    love.graphics.print("game.state = " .. self.state, 400, 200 )
+    love.graphics.print("game.trialNumber = " .. self.trialNumber, 400, 220 )
+    love.graphics.print("game.trialTime= " .. self.trialTime, 400, 240 )
   elseif state == "timeout" then
-    
+    love.graphics.print("game.state = " .. self.state, 400, 200 )
+    love.graphics.print("game.trialNumber = " .. self.trialNumber, 400, 220 )
+    love.graphics.print("game.trialTime= " .. self.trialTime, 400, 240 )
   elseif state == "intertrial" then
     
   end

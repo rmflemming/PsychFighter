@@ -68,14 +68,15 @@ end
 
 function love.keypressed(key) 
   -- Process key presses during a trial
-  if game.state == "intro" then
+  if game.state == "input" then
     if key == "return" then
       inbox.answer = true
       -- Random Seed for AI attack inits
       seed = math.randomseed(inbox.text) -- Currently controlled for testing
       p2.strike_times  = init_attack[math.random(1,1000)] -- hard-coded to assume that 1000 init_attack times are provided
     end
-    if inbox.answer and key == "space" then
+  elseif game.state == "intro" then
+    if key == "space" then
       game:nextTrial()
     end
     
