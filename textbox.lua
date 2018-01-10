@@ -1,6 +1,6 @@
 textbox = {
-    x = 40,
-    y = 40,
+    x = 430,
+    y = 300,
     width = 100,
     height = 50,
     text = '',
