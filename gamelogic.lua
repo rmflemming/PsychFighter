@@ -2,7 +2,7 @@ require "math"
 
 GameLogic = {
    p2_type="ai", state="input", trialTime=0.0, globalTime=0.0, 
-   trialTimeout=3.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 100, fighter1=nil, fighter2=nil,
+   trialTimeout=5.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 100, fighter1=nil, fighter2=nil,
    }
 
 

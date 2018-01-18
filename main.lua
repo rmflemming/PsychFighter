@@ -16,6 +16,7 @@ function love.load()
   
   p2 = Fighter:new()
   p2.control = "ai"
+  p2.mode = "easy"
   p2.facing = "left"
   p2:initGraphics()
   p2.locked = 0
