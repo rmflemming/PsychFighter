@@ -41,9 +41,6 @@ function love.load()
     table.insert(strat_dist, line);
   end
   
-  --designate output file
-  io.output("log.txt")
-  
   -- create output tables
   player1_strike = {}
   player1_block = {}

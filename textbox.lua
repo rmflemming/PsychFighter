@@ -7,7 +7,7 @@ textbox = {
     active = false,
     answer = false,
     colors = {
-        background = { 255, 255, 255, 100 },
+        background = { 255, 255, 255,100 },
         text = { 40, 40, 40, 255 }
     }
 }
