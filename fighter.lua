@@ -2,7 +2,7 @@
 require "math"
 
 Fighter = {
-  control="player", x=10, facing="right", currentFrame=1, state="idle", animationTime=0.0 }
+  control="player", x=10, facing="right", currentFrame=1, state="idle", animationTime=0.0, mode = "hard" }
 
 function Fighter:new(o)
   o = o or {}
@@ -98,7 +98,19 @@ function Fighter:update(dt)
   -- Frame updates
   if state ~= "idle" then
     self.animationTime = self.animationTime + dt
-    self.currentFrame = math.ceil(self.animationTime / 0.08)
+    
+    if self.control == "ai" and self.mode == "easy" then
+      self.frameTime = 0.12
+    elseif self.control == "ai" and self.mode == "normal" then
+      self.frameTime = 0.1
+    elseif self.control == "ai" and self.mode == "hard" then
+      self.frameTime = 0.08
+    end
+    if self.control == "player" then
+      self.frameTime = 0.08
+    end
+    
+    self.currentFrame = math.ceil(self.animationTime / self.frameTime)
     if state ~= "death" then
       if self.currentFrame > 13 then
         self.currentFrame = 1

@@ -2,7 +2,7 @@ require "math"
 
 GameLogic = {
    p2_type="ai", state="input", trialTime=0.0, globalTime=0.0, 
-   trialTimeout=3.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 100, fighter1=nil, fighter2=nil,
+   trialTimeout=5.0, trialNumber=0, timeoutDuration=1.0, maxTrials = 2, fighter1=nil, fighter2=nil,
    }
 
 
@@ -218,7 +218,8 @@ function GameLogic:nextTrial()
       end
       
       print_col2tbl({player1_strike, player1_block, player2_strike, player2_block, player1_win},5,nil)
-      write_column(tbl,'log.txt')
+      outname = "log_"..inbox.text..".txt"
+      write_column(tbl, outname) -- write data out to file
     end
   end
 end
