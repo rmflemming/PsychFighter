@@ -16,7 +16,7 @@ function love.load()
   
   p2 = Fighter:new()
   p2.control = "ai"
-  p2.mode = "easy"
+  p2.mode = "hard" --***********************************************************************************************************************
   p2.facing = "left"
   p2:initGraphics()
   p2.locked = 0
@@ -96,6 +96,7 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
+  
   game:update(dt)
   game:fighterUpdate(dt)
   game:ai_state(dt)
@@ -107,8 +108,7 @@ end
 
 function love.draw()
   game:draw()
-  p1:draw()
-  p2:draw()
+  
 
 --[[
 love.graphics.print("p1.state = " .. p1.state, 330, 300 )

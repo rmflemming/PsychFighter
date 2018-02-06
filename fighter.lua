@@ -28,9 +28,9 @@ function Fighter:initGraphics()
   
   -- Active/ Passive frames
   self.strike_frames = {}
-  self.strike_active_frames = {false, false, false, false, false, false, true, true, true, false, false, false, false}
+  self.strike_active_frames = {false, false, false, false, false, false, true, true, true, false, false, false, false} -- length 13
   self.block_frames = {}
-  self.block_active_frames = {false, false, false, false,  true,  true, true, true, true, false, false, false, false}
+  self.block_active_frames = {false, false, false, false,  true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false} -- length 21
   self.death_frames = {}
   local frame_width = 128
   local frame_height = 128
@@ -40,9 +40,21 @@ function Fighter:initGraphics()
     table.insert(self.strike_frames, 
       love.graphics.newQuad(i * frame_width, 0, frame_width, frame_height,
         self.strike_img:getWidth(), self.strike_img:getHeight()))
-    table.insert(self.block_frames, 
-      love.graphics.newQuad(i * frame_width, 0, frame_width, frame_height,
-        self.block_img:getWidth(), self.block_img:getHeight()))
+  end
+  for i=0,21 do
+    if i < 7 then
+      table.insert(self.block_frames, 
+        love.graphics.newQuad(i * frame_width, 0, frame_width, frame_height,
+          self.block_img:getWidth(), self.block_img:getHeight()))
+    elseif i >= 7 and i <= 15 then -- this the size of this gap (currently 9 counts) will influence how long the parry is held fully
+      table.insert(self.block_frames, 
+        love.graphics.newQuad(7 * frame_width, 0, frame_width, frame_height,
+          self.block_img:getWidth(), self.block_img:getHeight()))
+    elseif i > 15 then
+      table.insert(self.block_frames, 
+        love.graphics.newQuad((i-8) * frame_width, 0, frame_width, frame_height,
+          self.block_img:getWidth(), self.block_img:getHeight()))
+    end
   end
   for i = 0,3 do
     table.insert(self.death_frames,
@@ -53,15 +65,6 @@ function Fighter:initGraphics()
   
 end
 
---[[
-function Fighter:initTimings()
-  if self.control == "ai" then
-    -- Will want to draw from distributions (sciLua?) eventually
-    self.strike_times = 1
-    self.reaction_time = .5
-  end
-end
-]]--
 function Fighter:strikePressed()
   if self.state == "idle" and self.locked == 0 then
     self.state = "strike"
@@ -100,9 +103,9 @@ function Fighter:update(dt)
     self.animationTime = self.animationTime + dt
     
     if self.control == "ai" and self.mode == "easy" then
-      self.frameTime = 0.12
+      self.frameTime = 0.11
     elseif self.control == "ai" and self.mode == "normal" then
-      self.frameTime = 0.1
+      self.frameTime = 0.095
     elseif self.control == "ai" and self.mode == "hard" then
       self.frameTime = 0.08
     end
@@ -112,7 +115,11 @@ function Fighter:update(dt)
     
     self.currentFrame = math.ceil(self.animationTime / self.frameTime)
     if state ~= "death" then
-      if self.currentFrame > 13 then
+      if self.state == 'strike' and self.currentFrame > 13 then -- length of strike animation (13)
+        self.currentFrame = 1
+        self.animationTime = 0
+        self.state = "idle"
+      elseif self.state == 'block' and self.currentFrame > 21 then -- length of parry animation + hold time (21)
         self.currentFrame = 1
         self.animationTime = 0
         self.state = "idle"
@@ -131,5 +138,6 @@ function Fighter:update(dt)
 end
 
 function Fighter:draw()
+  love.graphics.setColor(255,255,255,255)
   love.graphics.draw(self.currentImage, self.frames[self.currentFrame],self.x, 25, 0, 5, 5)
 end
