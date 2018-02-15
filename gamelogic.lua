@@ -76,7 +76,7 @@ function GameLogic:ai_state(dt)
         -- draw from defense/attack distributions and set p2 state to the appropriate one
         -- if block RT before planned attack & it is block RT time 
 
-          if p2.reaction_time + t < p2.strike_times and t >= p2.reaction_time + p1.strikeTime then
+          if p2.reaction_time + t < p2.strike_times + 1 and t >= p2.reaction_time + p1.strikeTime then
             p2:blockPressed(dt)
             p2.blockTime = t
             player2_block[self.trialNumber] = p2.blockTime
